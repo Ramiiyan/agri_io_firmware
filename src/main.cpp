@@ -4,16 +4,16 @@
 
 SensorManager sensorManager;
 // MQTTManager(const char *broker, const char *pub_topic, const char *sub_topic, const char *username, const char *password, int port); 
-MQTTManager mqttManager("broker.emqx.io", "subTopic1","pubTopic1", "emqx", "public", 1883);
+MQTTManager mqttManager("broker.emqx.io", "subTopic","pubTopic", "emqx", "public", 1883);
 
 // WiFi Credentials
-const char *ssid = "Ramiyan";
-const char *password = "Alohomora";
+// const char *ssid = "Ramiyan";
+// const char *password = "Alohomora";
 
 void setup() {
   
   // Initialize ESP32 serial communication at 115200 baud rate
-  Serial.begin(115200);
+  Serial.begin(BAUD_RATE);
   
   // Add sensors to the manager
   // sensorManager.addSensor(32);
@@ -24,9 +24,11 @@ void setup() {
   std::vector<int> sensorPins = {32, 33, 34, 35, 36, 39};
   sensorManager.addSensors(sensorPins);
 
-
-  // Connect to WiFi and MQTT broker
-  mqttManager.connect(ssid, password);
+  // Connect to GSM modem
+  mqttManager.initializeModem();
+  
+  // Connect to MQTT broker
+  mqttManager.connect();
 }
 
 void loop() {
