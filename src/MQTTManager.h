@@ -1,12 +1,12 @@
 #ifndef MQTT_MANAGER_H
 #define MQTT_MANAGER_H
 
-#include <WiFi.h>
+// #include <WiFi.h>
 #include <PubSubClient.h>
 
 class MQTTManager {
 private:
-    WiFiClient espClient;
+    // WiFiClient espClient;
     PubSubClient client;
     const char *mqtt_broker;
     const char *pub_topic;
