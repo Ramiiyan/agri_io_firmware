@@ -4,7 +4,7 @@
 
 SensorManager sensorManager;
 // MQTTManager(const char *broker, const char *pub_topic, const char *sub_topic, const char *username, const char *password, int port); 
-MQTTManager mqttManager("broker.emqx.io", "subTopic1","pubTopic1", "emqx", "public", 1883);
+MQTTManager mqttManager("broker.emqx.io", "subTopic","pubTopic", "emqx", "public", 1883);
 
 // WiFi Credentials
 // const char *ssid = "Ramiyan";
