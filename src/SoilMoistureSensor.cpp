@@ -1,19 +1,25 @@
 #include "SoilMoistureSensor.h"
 
-SoilMoistureSensor::SoilMoistureSensor(int sensorPin) : pin(sensorPin), value(0), percentage(0) {}
+SoilMoistureSensor::SoilMoistureSensor(int sensorPin) : pin(sensorPin), value(0), moistPercentage(0) {}
 
 void SoilMoistureSensor::read() {
     value = analogRead(pin);
-    // Assuming the sensor gives values between 0 (wet) and 1023 (dry)
-    percentage = map(value, 1023, 0, 0, 100);
+    
+    moistPercentage = ((double)(value - DRY_ANALOG_VALUE) / (WET_ANALOG_VALUE - DRY_ANALOG_VALUE)) * 100 ;
 }
 
 int SoilMoistureSensor::getValue() const {
     return value;
 }
 
-int SoilMoistureSensor::getPercentage() const {
-    return percentage;
+int SoilMoistureSensor::getMoistPercentage() const {
+
+    if (moistPercentage < 0.00 || moistPercentage > 101){
+        return 0.00;
+    }else {
+        return moistPercentage;
+    }
+
 }
 
 int SoilMoistureSensor::getPin() const {
