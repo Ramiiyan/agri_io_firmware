@@ -1,20 +1,45 @@
 #include "MQTTManager.h"
 
 MQTTManager::MQTTManager(const char *broker, const char *pub_topic, const char *sub_topic, const char *username, const char *password, int port)
-    : client(espClient), mqtt_broker(broker), pub_topic(pub_topic), sub_topic(sub_topic), mqtt_username(username), mqtt_password(password), mqtt_port(port) {
+    : SerialSIM(2), modem(SerialSIM), gsmClient(modem), client(gsmClient), mqtt_broker(broker), pub_topic(pub_topic), sub_topic(sub_topic), mqtt_username(username), mqtt_password(password), mqtt_port(port) {
     client.setServer(mqtt_broker, mqtt_port);
     client.setCallback(callback);
     client.setBufferSize(1024);
 }
 
-void MQTTManager::connect(const char *ssid, const char *password) {
-    // Connect to WiFi
-    WiFi.begin(ssid, password);
-    while (WiFi.status() != WL_CONNECTED) {
-        delay(500);
-        Serial.println("Connecting to WiFi..");
+void MQTTManager::initializeModem() {
+    Serial.begin(BAUD_RATE);
+    delay(10);
+    Serial.println("setup begin...");
+    
+    SerialSIM.begin(SIM_BAUD_RATE, SERIAL_8N1, (int8_t) RXD, (int8_t) TXD);
+    modem.setNetworkMode(NETWORK_MODE); // 38-nbiot 13-gsm
+    //modem.setPreferredMode(2);  // only for nbiot
+    modem.getModemName();
+    Serial.println(modem.getModemInfo());
+    Serial.println(modem.getIMEI());
+    modem.restart();
+    delay(2000);
+    Serial.println(F("Finding Network..."));
+    if (!modem.waitForNetwork()) {
+        Serial.println(F("Network Fail"));
+        while (true);
+    } else {
+        Serial.println(F("Network identified."));
+        Serial.print(F("Signal Strength : "));
+        Serial.println(modem.getSignalQuality());
+        
+        if (!modem.gprsConnect(GSM_APN, "", "")) {
+            Serial.println(F("GPRS Fail"));
+        } else {
+            Serial.println(F("GPRS Connected."));
+            Serial.println(getCPSI());
+            // The client is already set up in the constructor, so we don't need to set it again here
+        }
     }
-    Serial.println("Connected to the WiFi network");
+}
+
+void MQTTManager::connect() {
 
     // Connect to MQTT broker
     while (!client.connected()) {
@@ -56,4 +81,15 @@ void MQTTManager::callback(char *topic, byte *payload, unsigned int length) {
     }
     Serial.println();
     Serial.println("-----------------------");
+}
+
+String MQTTManager::getCPSI(){
+    String cpsi;
+    SerialSIM.println("AT+CPSI?");
+    delay(500);
+    while (SerialSIM.available()){
+        cpsi = SerialSIM.readString();
+    }
+    delay(500);
+    return cpsi;
 }
