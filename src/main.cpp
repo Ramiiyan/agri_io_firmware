@@ -42,5 +42,5 @@ void loop() {
   
   mqttManager.loop();
   
-  delay(2000); // Wait for 2 seconds before next reading
+  delay(4000); // Wait for 4 seconds before next reading
 }
